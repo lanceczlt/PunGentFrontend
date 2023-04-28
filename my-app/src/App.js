@@ -24,12 +24,14 @@ import {
 function App() {
 
   const [input, setInput] = useState("");
-  const [lyrics, setLyrics] = useState(true)
-  const [jokes, setJokes] = useState(true)
-  const [phrases, setPhrases] = useState(true)
-  const [proverbs, setProverbs] = useState(true)
-  const [urban, setUrban] = useState(true)
+
   const [anime, setAnime] = useState(true)
+  const [formalIdioms, setFormalIdioms] = useState(true)
+  const [commonPhrases, setCommonPhrases] = useState(true)
+  const [staticIdioms, setStaticIdioms] = useState(true)
+  const [movies, setMovies] = useState(true)
+  const [urbanDictionary, setUrbanDictionary] = useState(true)
+  const [genius, setGenius] = useState(true)
   const [nsfw, setNSFW] = useState(false)
 
   const [helperText, setHelperText] = useState("Ready to generate puns...");
@@ -42,11 +44,22 @@ function App() {
     setIsFetching(true);
     setHelperText("Generating puns...");
     axios.post('http://127.0.0.1:5000/query', {
-      input: input
+      input: input,
+      filters: {
+        "Anime": anime,
+        "Formal Idioms": formalIdioms,
+        "Common Phrases": commonPhrases,
+        "Static Idioms": staticIdioms,
+        "Movies": movies,
+        "Urban Dictionary": urbanDictionary,
+        "Genius": genius,
+      },
+      allowNSFW: nsfw,
     })
       .then((response) => {
+        console.log(typeof response.data.output);
+        console.log(response.data.output);
         let results = JSON.parse(response.data.output);
-        console.log(Object.keys(results).length);
 
         setPuns([...puns, ...results]);
         setIsFetching(false);
@@ -111,29 +124,31 @@ function App() {
             <Stack align={'center'} h='100px'>
               <Divider orientation='horizontal' />
               <HStack >
-                <CheckboxGroup colorScheme='green'>
+                <CheckboxGroup colorScheme='blue'>
                   <HStack>
                     <Stack spacing={[1, 5]} direction={['row', 'column']}>
-                      <Checkbox name='lyrics' onChange={(e) => setLyrics(e.target.checked)}>Lyrics</Checkbox>
-                      <Checkbox name='phrases' onChange={(e) => setPhrases(e.target.checked)}>Phrases</Checkbox>
-                      <Checkbox name='urban' onChange={(e) => setUrban(e.target.checked)}>Urban</Checkbox>
+                      <Checkbox name='anime' defaultChecked onChange={(e) => setAnime(e.target.checked)}>Anime</Checkbox>
+                      <Checkbox name='formal-idioms' defaultChecked onChange={(e) => setFormalIdioms(e.target.checked)}>Formal Idioms</Checkbox>
+                    </Stack>
+                    <Stack spacing={[1, 5]} direction={['row', 'column']}>
+                      <Checkbox name='common-phrases' defaultChecked onChange={(e) => setCommonPhrases(e.target.checked)}>Common Phrases</Checkbox>
+                      <Checkbox name='static-idioms' defaultChecked onChange={(e) => setStaticIdioms(e.target.checked)}>Static Idioms</Checkbox>
                     </Stack>
                     <Stack spacing={[1, 5]} direction={['row', 'column']}  >
-                      <Checkbox name='jokes' onChange={(e) => setJokes(e.target.checked)}>Jokes</Checkbox>
-                      <Checkbox name='proverbs' onChange={(e) => setProverbs(e.target.checked)}>Proverbs</Checkbox>
-                      <Checkbox name='anime' onChange={(e) => setAnime(e.target.checked)}>Anime Quotes</Checkbox>
+                      <Checkbox name='movies' defaultChecked onChange={(e) => setMovies(e.target.checked)}>Movies</Checkbox>
+                      <Checkbox name='urban-dictionary' defaultChecked onChange={(e) => setUrbanDictionary(e.target.checked)}>Urban Dictionary</Checkbox>
+                    </Stack>
+                    <Stack spacing={[1, 5]} direction={['row', 'column']}  >
+                      <Checkbox name='Genius' defaultChecked onChange={(e) => setGenius(e.target.checked)}>Genius Top 100</Checkbox>
+                      <Checkbox name='nsfw' colorScheme="red" defaultChecked onChange={(e) => setNSFW(e.target.checked)}>Allow NSFW</Checkbox>
                     </Stack>
                   </HStack>
                 </CheckboxGroup>
               </HStack>
               <Divider orientation='horizontal' colorScheme={'blackAlpha'} />
-              <Select align='center' pl='10px' w='md' placeholder='Select Language'>
-                <option value='option1'>English</option>
-                <option value='option2'>Spanish</option>
-                <option value='option3'>French</option>
+              <Select align='center' pl='10px' w='md' isReadOnly defaultValue='English'>
+                <option value='English'>English</option>
               </Select>
-
-              <Checkbox colorScheme='red' value='nsfw'> Include NSFW puns</Checkbox>
             </Stack>
           </CardBody>
         </Card>
