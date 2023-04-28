@@ -8,6 +8,18 @@ import { ChakraProvider, FormControl, HStack } from '@chakra-ui/react'
 import { SimpleGrid, Heading, Text, Image, Input, Divider, Stack, Select, Checkbox } from '@chakra-ui/react'
 import { Card, CardHeader, CardBody, Box, Button, CheckboxGroup } from '@chakra-ui/react'
 
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tfoot,
+  Tr,
+  Th,
+  Td,
+  TableCaption,
+  TableContainer,
+} from '@chakra-ui/react'
+
 function App() {
 
   const [input, setInput] = useState("");
@@ -21,35 +33,28 @@ function App() {
 
   const [output, setOutput] = useState('');
 
+  const [puns, setPuns] = useState([]);
 
-  // useEffect(() => {
-  //   axios.get('/')
-  //     .then(response => {
-  //       setOutput(response.data.output);
-  //     })
-  //     .catch(error => {
-  //       console.log(error);
-  //     });
-  // }, []);
 
   function handleGenerate() {
     axios.post('http://127.0.0.1:5000/query', {
       input: input
     })
       .then((response) => {
-        console.log(response.data.output);
-        setOutput(response.data.output);
+        // console.log(response.data.output);
+        let results = JSON.parse(response.data.output);
+
+        setPuns([...puns, ...results]);
+        // setOutput(response.data.output);
       })
       .catch((error) => {
         console.log(error)
-      })
+      });
   };
 
-  // const handleSubmit = (event) => {
-  //   event.preventDefault();
-
-  // };
-
+  function deletePuns() {
+    setPuns([]);
+  }
 
   return (
     <ChakraProvider>
@@ -64,7 +69,8 @@ function App() {
             <Text fontSize='xs'> Your one-stop-shop for wordplay!</Text>
             <HStack>
               <Input placeholder='Your idea here!' size='md' width={'auto'} onKeyUp={(e) => setInput(e.target.value)} />
-              <Button colorScheme='blackAlpha' onClick={handleGenerate}> Generate</Button>
+              <Button colorScheme='green' onClick={handleGenerate}> Generate</Button>
+              <Button colorScheme='red' onClick={deletePuns}> Delete Puns</Button>
             </HStack>
 
           </CardHeader>
@@ -74,6 +80,7 @@ function App() {
             </Box>
           </CardBody>
         </Card>
+
         <Card variant={'outline'} borderColor={'gray'} background={'gray.50'}>
           <CardHeader>
             <Heading size='md'> Filters</Heading>
@@ -109,7 +116,34 @@ function App() {
           </CardBody>
         </Card>
       </SimpleGrid>
-
+      <SimpleGrid columns={1} pr={20} pl={20} mt={-18}>
+        <Card>
+          <TableContainer>
+            <Table variant='striped' colorScheme='teal'>
+              <Thead>
+                <Tr>
+                  <Th>Original</Th>
+                  <Th>Rhymed</Th>
+                  <Th>Source</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {
+                  puns.map((entry) => {
+                    return (
+                      <Tr>
+                        <Td>{entry.original_phrase}</Td>
+                        <Td>{entry.rhymed_phrase}</Td>
+                        <Td>{entry.metadata.source}</Td>
+                      </Tr>
+                    )
+                  })
+                }
+              </Tbody>
+            </Table>
+          </TableContainer>
+        </Card>
+      </SimpleGrid>
 
     </ChakraProvider >
   )
