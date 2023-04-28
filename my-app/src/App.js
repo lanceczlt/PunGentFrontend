@@ -7,6 +7,7 @@ import axios from 'axios';
 import { ChakraProvider, FormControl, HStack } from '@chakra-ui/react'
 import { SimpleGrid, Heading, Text, Image, Input, Divider, Stack, Select, Checkbox } from '@chakra-ui/react'
 import { Card, CardHeader, CardBody, Box, Button, CheckboxGroup } from '@chakra-ui/react'
+import { Spinner } from '@chakra-ui/react'
 
 import {
   Table,
@@ -31,24 +32,35 @@ function App() {
   const [anime, setAnime] = useState(true)
   const [nsfw, setNSFW] = useState(false)
 
-  const [output, setOutput] = useState('');
+  const [helperText, setHelperText] = useState("Ready to generate puns...");
 
   const [puns, setPuns] = useState([]);
+  const [isFetching, setIsFetching] = useState(false);
 
 
   function handleGenerate() {
+    setIsFetching(true);
+    setHelperText("Generating puns...");
     axios.post('http://127.0.0.1:5000/query', {
       input: input
     })
       .then((response) => {
-        // console.log(response.data.output);
         let results = JSON.parse(response.data.output);
+        console.log(Object.keys(results).length);
 
         setPuns([...puns, ...results]);
-        // setOutput(response.data.output);
+        setIsFetching(false);
+        let num_puns = Object.keys(results).length;
+        if (num_puns === 0) {
+          setHelperText("Failed to generate puns :(");
+        }
+        else {
+          setHelperText(`Success! Generated ${num_puns} new puns...`);
+        }
       })
       .catch((error) => {
         console.log(error)
+        setHelperText("Something went wrong :(");
       });
   };
 
@@ -68,6 +80,16 @@ function App() {
             </HStack>
             <Text fontSize='xs'> Your one-stop-shop for wordplay!</Text>
             <HStack>
+              {
+                isFetching && <Spinner
+                  thickness='4px'
+                  speed='0.65s'
+                  emptyColor='gray.200'
+                  color='teal.500'
+                  size='lg'
+                />
+              }
+
               <Input placeholder='Your idea here!' size='md' width={'auto'} onKeyUp={(e) => setInput(e.target.value)} />
               <Button colorScheme='green' onClick={handleGenerate}> Generate</Button>
               <Button colorScheme='red' onClick={deletePuns}> Delete Puns</Button>
@@ -76,7 +98,7 @@ function App() {
           </CardHeader>
           <CardBody>
             <Box w='md' h='150px' p={4} borderWidth='2px' overflowY={'scroll'} overflowX={'scroll'}>
-              <Text> {output}</Text>
+              <Text> {helperText}</Text>
             </Box>
           </CardBody>
         </Card>
