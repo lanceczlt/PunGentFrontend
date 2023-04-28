@@ -140,7 +140,7 @@ function App() {
                     </Stack>
                     <Stack spacing={[1, 5]} direction={['row', 'column']}  >
                       <Checkbox name='Genius' defaultChecked onChange={(e) => setGenius(e.target.checked)}>Genius Top 100</Checkbox>
-                      <Checkbox name='nsfw' colorScheme="red" defaultChecked onChange={(e) => setNSFW(e.target.checked)}>Allow NSFW</Checkbox>
+                      <Checkbox name='nsfw' colorScheme="red" onChange={(e) => setNSFW(e.target.checked)}>Allow NSFW</Checkbox>
                     </Stack>
                   </HStack>
                 </CheckboxGroup>
