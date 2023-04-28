@@ -10,19 +10,40 @@ import { Card, CardHeader, CardBody, Box, Button, CheckboxGroup } from '@chakra-
 
 function App() {
 
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
+  const [lyrics, setLyrics] = useState(true)
+  const [jokes, setJokes] = useState(true)
+  const [phrases, setPhrases] = useState(true)
+  const [proverbs, setProverbs] = useState(true)
+  const [urban, setUrban] = useState(true)
+  const [anime, setAnime] = useState(true)
+  const [nsfw, setNSFW] = useState(false)
+
   const [output, setOutput] = useState('');
 
 
-  useEffect(() => {
-    axios.get('/')
-      .then(response => {
+  // useEffect(() => {
+  //   axios.get('/')
+  //     .then(response => {
+  //       setOutput(response.data.output);
+  //     })
+  //     .catch(error => {
+  //       console.log(error);
+  //     });
+  // }, []);
+
+  function handleGenerate() {
+    axios.post('http://127.0.0.1:5000/query', {
+      input: input
+    })
+      .then((response) => {
+        console.log(response.data.output);
         setOutput(response.data.output);
       })
-      .catch(error => {
-        console.log(error);
-      });
-  }, []);
+      .catch((error) => {
+        console.log(error)
+      })
+  };
 
   // const handleSubmit = (event) => {
   //   event.preventDefault();
@@ -32,68 +53,63 @@ function App() {
 
   return (
     <ChakraProvider>
-      <form >
-        <FormControl >
-          <SimpleGrid columns={2} p={20}>
-            <Card variant={'outline'} borderColor={'gray'} background={'gray.50'}>
-              <CardHeader >
-                <HStack >
-                  <Heading size='lg'> PunGenT</Heading>
-                  <Image w={"50px"} h={"40px"} src={logo} />
-                </HStack>
-                <Text fontSize='xs'> Your one-stop-shop for wordplay!</Text>
-                <HStack>
-                  <Input placeholder='Your idea here!' size='md' width={'auto'} value={input}
-                    onChange={(event) => setInput(event.target.value)} />
-                  <Button colorScheme='blackAlpha' type='submit'> Generate</Button>
-                </HStack>
 
-              </CardHeader>
-              <CardBody>
-                <Box w='md' h='150px' p={4} borderWidth='2px' overflowY={'scroll'}>
-                  <Text> {output}</Text>
-                </Box>
-              </CardBody>
-            </Card>
-            <Card variant={'outline'} borderColor={'gray'} background={'gray.50'}>
-              <CardHeader>
-                <Heading size='md'> Filters</Heading>
-              </CardHeader>
-              <CardBody>
-                <Stack align={'center'} h='100px'>
-                  <Divider orientation='horizontal' />
-                  <HStack >
-                    <CheckboxGroup colorScheme='green'>
-                      <HStack>
-                        <Stack spacing={[1, 5]} direction={['row', 'column']}>
-                          <Checkbox value='lyrics'>Lyrics</Checkbox>
-                          <Checkbox value='phrases'>Phrases</Checkbox>
-                          <Checkbox value='urban'>Urban</Checkbox>
-                        </Stack>
-                        <Stack spacing={[1, 5]} direction={['row', 'column']}  >
-                          <Checkbox value='jokes'>Jokes</Checkbox>
-                          <Checkbox value='proverbs'>Proverbs</Checkbox>
-                          <Checkbox value='quotes'>Anime Quotes</Checkbox>
-                        </Stack>
-                      </HStack>
-                    </CheckboxGroup>
+      <SimpleGrid columns={2} p={20}>
+        <Card variant={'outline'} borderColor={'gray'} background={'gray.50'}>
+          <CardHeader >
+            <HStack >
+              <Heading size='lg'> PunGenT</Heading>
+              <Image w={"50px"} h={"40px"} src={logo} />
+            </HStack>
+            <Text fontSize='xs'> Your one-stop-shop for wordplay!</Text>
+            <HStack>
+              <Input placeholder='Your idea here!' size='md' width={'auto'} onKeyUp={(e) => setInput(e.target.value)} />
+              <Button colorScheme='blackAlpha' onClick={handleGenerate}> Generate</Button>
+            </HStack>
+
+          </CardHeader>
+          <CardBody>
+            <Box w='md' h='150px' p={4} borderWidth='2px' overflowY={'scroll'} overflowX={'scroll'}>
+              <Text> {output}</Text>
+            </Box>
+          </CardBody>
+        </Card>
+        <Card variant={'outline'} borderColor={'gray'} background={'gray.50'}>
+          <CardHeader>
+            <Heading size='md'> Filters</Heading>
+          </CardHeader>
+          <CardBody>
+            <Stack align={'center'} h='100px'>
+              <Divider orientation='horizontal' />
+              <HStack >
+                <CheckboxGroup colorScheme='green'>
+                  <HStack>
+                    <Stack spacing={[1, 5]} direction={['row', 'column']}>
+                      <Checkbox name='lyrics' onChange={(e) => setLyrics(e.target.checked)}>Lyrics</Checkbox>
+                      <Checkbox name='phrases' onChange={(e) => setPhrases(e.target.checked)}>Phrases</Checkbox>
+                      <Checkbox name='urban' onChange={(e) => setUrban(e.target.checked)}>Urban</Checkbox>
+                    </Stack>
+                    <Stack spacing={[1, 5]} direction={['row', 'column']}  >
+                      <Checkbox name='jokes' onChange={(e) => setJokes(e.target.checked)}>Jokes</Checkbox>
+                      <Checkbox name='proverbs' onChange={(e) => setProverbs(e.target.checked)}>Proverbs</Checkbox>
+                      <Checkbox name='anime' onChange={(e) => setAnime(e.target.checked)}>Anime Quotes</Checkbox>
+                    </Stack>
                   </HStack>
-                  <Divider orientation='horizontal' colorScheme={'blackAlpha'} />
-                  <Select align='center' pl='10px' w='md' placeholder='Select Language'>
-                    <option value='option1'>English</option>
-                    <option value='option2'>Spanish</option>
-                    <option value='option3'>French</option>
-                  </Select>
+                </CheckboxGroup>
+              </HStack>
+              <Divider orientation='horizontal' colorScheme={'blackAlpha'} />
+              <Select align='center' pl='10px' w='md' placeholder='Select Language'>
+                <option value='option1'>English</option>
+                <option value='option2'>Spanish</option>
+                <option value='option3'>French</option>
+              </Select>
 
-                  <Checkbox colorScheme='red' value='nsfw'> Include NSFW puns</Checkbox>
-                </Stack>
-              </CardBody>
-            </Card>
-          </SimpleGrid>
-        </FormControl>
+              <Checkbox colorScheme='red' value='nsfw'> Include NSFW puns</Checkbox>
+            </Stack>
+          </CardBody>
+        </Card>
+      </SimpleGrid>
 
-
-      </form>
 
     </ChakraProvider >
   )
